@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from routers.users_router import router as userRouter
-from routers.transactions_router import router as transactionsRouter
-from routers.taxes_router import router as taxesRouter
+from app.routers.users_router import router as userRouter
+from app.routers.transactions_router import router as transactionsRouter
+from app.routers.taxes_router import router as taxesRouter
 
 
 app = FastAPI()
