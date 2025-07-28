@@ -1,5 +1,3 @@
-CREATE DATABASE futurebank_ver01;
-
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(64) NOT NULL UNIQUE,
