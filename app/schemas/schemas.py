@@ -12,8 +12,9 @@ class User(Base):
     fio = Column(String(64), nullable=False)
     balance = Column(Numeric(10, 2), default=0.00)
     is_banned = Column(Boolean, default=False)
-    role = Column(Integer, default=0)
+    role_id = Column(Integer, ForeignKey("roles.id"))
 
+    role = relationship("Role", back_populates="users")
     transactions_sent = relationship(
         "Transaction", foreign_keys="Transaction.sender_id", back_populates="sender"
     )
@@ -62,3 +63,12 @@ class TaxPayment(Base):
 
     user = relationship("User", back_populates="tax_payments")
     tax = relationship("Tax", back_populates="payments")
+
+
+class Role(Base):
+    __tablename__ = "roles"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(32), unique=True, nullable=False)
+    description = Column(String)
+
+    users = relationship("User", back_populates="role")

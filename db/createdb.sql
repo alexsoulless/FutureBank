@@ -36,3 +36,10 @@ CREATE TABLE tax_payments (
 CREATE INDEX idx_user_id ON tax_payments(user_id);
 CREATE INDEX idx_tax_id ON tax_payments(tax_id);
 COMMENT ON TABLE tax_payments IS 'Таблица для хранения платежей по налогам';
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(32) UNIQUE NOT NULL,
+    description TEXT
+);
+COMMENT ON TABLE roles IS 'Таблица для хранения ролей пользователей';
