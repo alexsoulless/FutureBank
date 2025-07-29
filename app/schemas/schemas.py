@@ -1,74 +1,37 @@
-from sqlalchemy import Column, Integer, String, Numeric, Boolean, TIMESTAMP, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from typing import Optional
+from pydantic import BaseModel, Field
+from datetime import datetime
+from decimal import Decimal
 
-Base = declarative_base()
+class UserSchema(BaseModel):
+    id: int
+    username: str
+    fio: str
+    balance: Decimal
+    is_banned: bool
+    role_id: int
 
+class TransactionSchema(BaseModel):
+    id: int
+    sender_id: int
+    recipient_id: int
+    transaction_datetime: datetime
+    amount: Decimal
 
-class User(Base):
-    __tablename__ = "users"
+class TaxPaymentSchema(BaseModel):
+    id: int
+    user_id: int
+    tax_id: int
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(64), unique=True, nullable=False)
-    fio = Column(String(64), nullable=False)
-    balance = Column(Numeric(10, 2), default=0.00)
-    is_banned = Column(Boolean, default=False)
-    role_id = Column(Integer, ForeignKey("roles.id"))
+class TaxSchema(BaseModel):
+    id: int
+    name: str
+    due_datetime: datetime
+    amount: Decimal
 
-    role = relationship("Role", back_populates="users")
-    transactions_sent = relationship(
-        "Transaction", foreign_keys="Transaction.sender_id", back_populates="sender"
-    )
-    transactions_received = relationship(
-        "Transaction",
-        foreign_keys="Transaction.recipient_id",
-        back_populates="recipient",
-    )
-    tax_payments = relationship("TaxPayment", back_populates="user")
-
-
-class Transaction(Base):
-    __tablename__ = "transactions"
-
-    id = Column(Integer, primary_key=True)
-    sender_id = Column(Integer, ForeignKey("users.id"))
-    recipient_id = Column(Integer, ForeignKey("users.id"))
-    transaction_datetime = Column(TIMESTAMP, nullable=False)
-    amount = Column(Numeric(10, 2), nullable=False)
-
-    sender = relationship(
-        "User", foreign_keys=[sender_id], back_populates="transactions_sent"
-    )
-    recipient = relationship(
-        "User", foreign_keys=[recipient_id], back_populates="transactions_received"
-    )
-
-
-class Tax(Base):
-    __tablename__ = "taxes"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(32), nullable=False)
-    due_datetime = Column(TIMESTAMP, nullable=False)
-    amount = Column(Numeric(10, 2), nullable=False)
-
-    payments = relationship("TaxPayment", back_populates="tax")
-
-
-class TaxPayment(Base):
-    __tablename__ = "tax_payments"
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    tax_id = Column(Integer, ForeignKey("taxes.id"), nullable=False)
-
-    user = relationship("User", back_populates="tax_payments")
-    tax = relationship("Tax", back_populates="payments")
-
-
-class Role(Base):
-    __tablename__ = "roles"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(32), unique=True, nullable=False)
-    description = Column(String)
-
-    users = relationship("User", back_populates="role")
+class UserUpdateSchema(BaseModel):
+    username: Optional[str] = Field(None, description="Username of the user")
+    FIO: Optional[str] = Field(None, description="Full name of the user")
+    balance: Optional[Decimal] = Field(None, description="Balance of the user")
+    is_banned: Optional[bool] = Field(None, description="Banned status of the user")
+    is_org: Optional[bool] = Field(None, description="Organization status of the user")
