@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from config import DB_PASSWORD, DB_USER, DB_HOST, DB_NAME, DB_PORT
 
 engine = create_async_engine(
-    f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
     pool_size=5,
     max_overflow=10,
     pool_timeout=30,
