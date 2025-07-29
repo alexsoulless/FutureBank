@@ -4,7 +4,7 @@ CREATE TABLE users (
     fio VARCHAR(64) NOT NULL,
     balance NUMERIC(10, 2) DEFAULT 0.00,
     is_banned BOOLEAN DEFAULT FALSE,
-    role INT DEFAULT 0
+    role_id INT REFERENCES roles(id)
 );
 COMMENT ON TABLE users IS 'Таблица для хранения информации о пользователях';
 
