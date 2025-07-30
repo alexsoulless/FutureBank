@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from config import DB_PASSWORD, DB_USER, DB_HOST, DB_NAME, DB_PORT
+from app.config import DB_PASSWORD, DB_USER, DB_HOST, DB_NAME, DB_PORT
 
 engine = create_async_engine(
     f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
