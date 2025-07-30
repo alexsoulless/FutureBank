@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from decimal import Decimal
 
@@ -11,8 +11,7 @@ class UserSchema(BaseModel):
     is_banned: bool
     role_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
     
 class UserCreateSchema(BaseModel):
     username: str
