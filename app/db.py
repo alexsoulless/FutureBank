@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy import text
 from app.config import DB_PASSWORD, DB_USER, DB_HOST, DB_NAME, DB_PORT
 
 engine = create_async_engine(
@@ -17,3 +18,11 @@ AsyncSessionLocal = async_sessionmaker(
 async def get_session():
     async with AsyncSessionLocal() as session:
         yield session
+
+
+async def test_db_connection():
+    try:
+        async for session in get_session():
+            result = await session.execute(text("SELECT 1"))
+    except Exception as ex:
+        print(f"Failed to connect DB:\n{ex}")
