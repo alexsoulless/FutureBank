@@ -16,7 +16,7 @@ class UserSchema(BaseModel):
 class UserCreateSchema(BaseModel):
     username: str
     fio: str
-    balance: Optional[Decimal] = Decimal(0)
+    balance: Optional[Decimal] = Decimal("0.00")
     is_banned: Optional[bool] = False
     role_id: int
 

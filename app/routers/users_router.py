@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query, Path, status, Depends
+from fastapi import APIRouter, HTTPException, Query, Path, status, Depends, Body
 from app.db import get_session
 from sqlalchemy.future import select
 from app.models import User
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.user import UserSchema
+from sqlalchemy import exc
+from app.schemas.user import UserSchema, UserCreateSchema
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -24,3 +25,19 @@ async def get_user(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return UserSchema(**user)
+
+@router.post("", response_model=UserSchema)
+async def create_user(
+    user: UserCreateSchema,
+    session: AsyncSession = Depends(get_session),
+):
+    try:
+        new_user = User(**user.model_dump())
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
+        return UserSchema.model_validate(new_user)
+    except exc.DatabaseError as ex:
+        orig = getattr(ex, "orig", None)
+        detail = str(orig) if orig else str(ex)
+        raise HTTPException(status_code=409, detail=detail)
