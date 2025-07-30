@@ -23,6 +23,6 @@ async def get_session():
 async def test_db_connection():
     try:
         async for session in get_session():
-            result = await session.execute(text("SELECT 1"))
+            result = await session.execute(text("SELECT * from users;"))
     except Exception as ex:
-        print(f"Failed to connect DB:\n{ex}")
+        raise Exception(f"Failed to connect DB:\n{ex.__repr__()}")
