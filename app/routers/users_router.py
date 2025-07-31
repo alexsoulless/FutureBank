@@ -3,7 +3,7 @@ from app.db import get_session
 from sqlalchemy.future import select
 from app.models import User
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import exc
+from sqlalchemy import exc, or_
 from app.schemas.user import UserSchema, UserCreateSchema, UserUpdateSchema
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -21,6 +21,22 @@ async def get_users(session: AsyncSession = Depends(get_session)):
         await session.close()
 
 
+@router.get("/find", response_model=list[UserSchema])
+async def find_user(
+    pattern: str = Query(min_length=3),
+    session: AsyncSession = Depends(get_session),
+):
+    try:
+        query = select(User).filter(
+            or_(User.fio.like(f"%{pattern}%"), User.username.like(f"%{pattern}%"))
+        )
+        result = await session.execute(query)
+        users = result.scalars().all()
+        return users
+    finally:
+        await session.close()
+
+
 @router.get("/{user_id}", response_model=UserSchema)
 async def get_user(
     session: AsyncSession = Depends(get_session), user_id: int = Path(..., ge=1)
@@ -33,6 +49,7 @@ async def get_user(
         return UserSchema(**user)
     finally:
         await session.close()
+
 
 @router.post("", response_model=UserSchema)
 async def create_user(
@@ -52,6 +69,7 @@ async def create_user(
         raise HTTPException(status_code=409, detail=detail)
     finally:
         await session.close()
+
 
 @router.patch("/{user_id}", response_model=UserSchema)
 async def update_user(
@@ -79,4 +97,3 @@ async def update_user(
         raise HTTPException(status_code=409, detail=detail)
     finally:
         await session.close()
-        
