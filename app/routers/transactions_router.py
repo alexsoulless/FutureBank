@@ -55,10 +55,10 @@ async def make_transaction(
     """Выполнение транзакции с занесением в базу данных
 
     Args:
-        sender_id (int, optional): id отправителя. Defaults to Query(..., ge=1).
-        recipient_id (int, optional): id получателя. Defaults to Query(..., ge=1).
-        amount (Decimal, optional): сумма транзакции. Defaults to Query(..., gt=0).
-        forced (bool, optional): усиленна ли транзакция. Defaults to Query(False).
+        sender_id (int): id отправителя. Defaults to Query(..., ge=1).
+        recipient_id (int): id получателя. Defaults to Query(..., ge=1).
+        amount (Decimal): сумма транзакции. Defaults to Query(..., gt=0).
+        forced (bool): усиленна ли транзакция. Defaults to Query(False).
 
     Raises:
         HTTPException 400 (extra_code=1): отправитель и получатель один и тот же
