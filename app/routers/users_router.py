@@ -11,20 +11,28 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("", response_model=list[UserSchema])
 async def get_users(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(User))
-    users = result.scalars().all()
-    return users
+    try:
+        result = await session.execute(select(User))
+        users = result.scalars().all()
+        return users
+    except Exception as ex:
+        raise ex
+    finally:
+        await session.close()
 
 
 @router.get("/{user_id}", response_model=UserSchema)
 async def get_user(
     session: AsyncSession = Depends(get_session), user_id: int = Path(..., ge=1)
 ):
-    result = await session.execute(select(User).filter_by(id=user_id))
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return UserSchema(**user)
+    try:
+        result = await session.execute(select(User).filter_by(id=user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return UserSchema(**user)
+    finally:
+        await session.close()
 
 @router.post("", response_model=UserSchema)
 async def create_user(
@@ -38,6 +46,9 @@ async def create_user(
         await session.refresh(new_user)
         return UserSchema.model_validate(new_user)
     except exc.DatabaseError as ex:
+        await session.rollback()
         orig = getattr(ex, "orig", None)
         detail = str(orig) if orig else str(ex)
         raise HTTPException(status_code=409, detail=detail)
+    finally:
+        await session.close()
