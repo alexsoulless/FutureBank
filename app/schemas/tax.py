@@ -9,8 +9,12 @@ class TaxSchema(BaseModel):
     due_datetime: datetime
     amount: Decimal
     
-class TaxCreateSchema(TaxSchema):
-    pass
+class TaxCreateSchema(BaseModel):
+    name: str
+    due_datetime: datetime
+    amount: Optional[Decimal] = Decimal("0.00")
 
-class TaxUpdateSchema(TaxSchema):
-    pass
+class TaxUpdateSchema(BaseModel):
+    name: Optional[str] = None
+    due_datetime: Optional[datetime] = None
+    amount: Optional[Decimal] = None
