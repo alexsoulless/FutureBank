@@ -15,5 +15,6 @@ class TaxPaymentSchema(TaxPaymentCreateSchema):
 
 
 class TaxStatsSchema(BaseModel):
+    tax_id: int
     payed: list[UserSchema]
     not_payed: list[UserSchema]
