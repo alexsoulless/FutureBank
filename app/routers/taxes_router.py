@@ -8,6 +8,18 @@ from app.db import get_session
 router = APIRouter(prefix="/taxes", tags=["taxes"])
 
 
+@router.post("", response_model=TaxSchema)
+async def create_tax(tax: TaxCreateSchema, session: AsyncSession = Depends(get_session)):
+    try:
+        new_tax = Tax(**tax.model_dump())
+        session.add(new_tax)
+        await session.commit()
+        await session.refresh(new_tax)
+        return new_tax
+    finally:
+        await session.close()
+
+
 @router.get("", response_model=list[TaxSchema])
 async def get_taxes(session: AsyncSession = Depends(get_session)):
     try:
