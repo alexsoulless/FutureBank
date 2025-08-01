@@ -30,7 +30,7 @@ async def get_taxes(session: AsyncSession = Depends(get_session)):
         await session.close()
 
 
-@router.get("/{tax_td}", response_model=list[TaxSchema])
+@router.get("/{tax_id}", response_model=list[TaxSchema])
 async def get_tax(
     tax_id: int = Path(ge=1), session: AsyncSession = Depends(get_session)
 ):
