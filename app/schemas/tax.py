@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 from decimal import Decimal
+from app.schemas.user import UserSchema
 
 class TaxSchema(BaseModel):
     id: int
@@ -18,3 +19,7 @@ class TaxUpdateSchema(BaseModel):
     name: Optional[str] = None
     due_datetime: Optional[datetime] = None
     amount: Optional[Decimal] = None
+
+class TaxStatsSchema(BaseModel):
+    payed: list[UserSchema]
+    not_payed:list[UserSchema]
