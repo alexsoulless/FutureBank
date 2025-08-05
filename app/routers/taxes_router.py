@@ -3,7 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import exc
 from app.schemas.tax import TaxSchema, TaxCreateSchema, TaxUpdateSchema
-from app.models import Tax
+from app.schemas.tax_payment import TaxStatsSchema
+from app.schemas.user import UserSchema 
+from app.models import Tax, User, TaxPayment
 from app.db import get_session
 
 router = APIRouter(prefix="/taxes", tags=["taxes"])
@@ -69,5 +71,39 @@ async def update_tax(
         orig = getattr(ex, "orig", None)
         detail = str(orig) if orig else str(ex)
         raise HTTPException(status_code=409, detail=detail)
+    finally:
+        await session.close()
+
+
+@router.get("/{tax_id}/stats", response_model=TaxStatsSchema)
+async def get_tax_stats(
+    tax_id: int = Path(..., ge=1),
+    session: AsyncSession = Depends(get_session),
+):
+    try:
+        result = await session.execute(select(Tax).filter_by(id=tax_id))
+        db_tax = result.scalar_one_or_none()
+        if db_tax is None:
+            raise HTTPException(status_code=404, detail="Tax not found")
+
+        payed_result = await session.execute(
+            select(User).join(TaxPayment).filter(TaxPayment.tax_id == tax_id)
+        )
+        payed_users = payed_result.scalars().all()
+
+        not_payed_result = await session.execute(
+            select(User).where(
+                ~User.id.in_(
+                    select(TaxPayment.user_id).filter(TaxPayment.tax_id == tax_id)
+                )
+            )
+        )
+        not_payed_users = not_payed_result.scalars().all()
+
+        return TaxStatsSchema(
+            tax_id=tax_id,
+            payed=[UserSchema.model_validate(u) for u in payed_users],
+            not_payed=[UserSchema.model_validate(u) for u in not_payed_users],
+        )
     finally:
         await session.close()
